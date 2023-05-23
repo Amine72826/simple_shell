@@ -1,0 +1,90 @@
+.TH SIMPLE_SHELL 1 "August 2022" "ALX School" "0x16. C - Simple Shell"
+
+.SH NAME
+simple_shell \- simple UNIX command interpreter
+
+.SH SYNOPSIS
+simple_shell [filename]
+
+.SH DESCRIPTION
+Simple_shell is a simple UNIX command language interpreter that reads commands from either a file or standard input and executes them.
+
+.B Invocation
+
+Simple_shell can be invoked both interactively and non-interactively.
+If simple_shell is invoked with standard input not connected to a terminal, it reads and executes received commands in order.
+
+If simple_shell is invoked with standard input connected to a terminal (determined by isatty(3)), an interactive shell is opened.
+When executing interactively, simple_shell displays the prompt "$ " when it is ready to read a command.
+
+Alternatively, if command line arguments are supplied upon invocation, simple_shell treats the first argument as a file from which to read commands.
+The supplied file should contain one command per line.
+Simple_shell runs each of the commands contained in the file in order before exiting.
+
+.B Environment
+
+Upon invocation, simple_shell receives and copies the environment of the parent process in which it was executed.
+This environment is an array of name-value strings describing variables in the format NAME=VALUE.
+
+.B Command Execution
+
+After receiving a command, simple_shell tokenizes it into words using " " as a delimiter.
+The first word is considered the command, and all remaining words are considered arguments to that command.
+Simple_shell then proceeds with the following actions:
+
+1. If the first character of the command is neither a slash (\) nor dot (.), the shell searches for it in the list of shell builtins.
+   If there exists a shell builtin by that name, the builtin is invoked.
+
+2. If the first character of the command is none of a slash (\), dot (.), nor builtin, simple_shell searches each element of the
+   PATH environmental variable for a directory containing an executable file by that name.
+
+3. If the first character of the command is a slash (\) or dot (.) or either of the above searches was successful,
+   the shell executes the named program with any remaining arguments given in a separate execution environment.
+
+.B Exit Status
+
+Simple_shell returns the exit status of the last command executed, unless a syntax error occurs, with zero indicating success and non-zero indicating failure.
+
+If a command is not found, the return status is 127; if a command is found but is not executable, the return status is 126.
+
+All builtins return zero on success and one or two on incorrect usage (indicated by a corresponding error message).
+
+.B Signals
+
+While running in interactive mode, simple_shell ignores the keyboard input Ctrl+c.
+Alternatively, an input of end-of-file (Ctrl+d) will exit the program.
+
+.B Variable Replacement
+
+Simple_shell interprets the "$" character for variable replacement:
+
+- $ENV_VARIABLE: ENV_VARIABLE is substituted with its value.
+- $?: "?" is substituted with the return value of the last program executed.
+- $$: The second "$" is substituted with the current process ID.
+
+.B Comments
+
+Simple_shell ignores all words and characters preceded by a "#" character on a line.
+
+.B Operators
+
+- ;: Command separator. Commands separated by a ";" are executed sequentially.
+- &&: AND logical operator. command1 && command2: command2 is executed if, and only if, command1 returns an exit status of zero.
+- ||: OR logical operator. command1 || command2: command2 is executed if, and only if, command1 returns a non-zero exit status.
+
+The operators "&&" and "||" have equal precedence, followed by ";".
+
+.B Simple_shell Builtin Commands
+
+- cd: Changes the current directory of the process.
+- alias: Handles aliases.
+- exit: Exits the shell.
+- env: Prints the current environment.
+- setenv: Initializes or modifies an environment variable.
+- unsetenv: Removes an environmental variable.
+
+.SH SEE ALSO
+access(2), chdir(2), execve(2), _exit(2), exit(3), fflush(3), fork(2), free(3), isatty(3), getcwd(3), malloc(3), open(2), read(2), sh(1), signal(2), stat(2), wait(2), write(2)
+
+Simple_shell emulates basic functionality of the sh shell.
+This man page borrows from the corresponding man pages sh(1) and dash(1).
